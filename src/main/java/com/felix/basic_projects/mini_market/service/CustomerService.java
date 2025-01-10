@@ -1,9 +1,8 @@
 package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.customer.CustomerNotFoundException;
-import com.felix.basic_projects.mini_market.model.Customer;
+import com.felix.basic_projects.mini_market.model.entity.Customer;
 import com.felix.basic_projects.mini_market.repository.CustomerRepository;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

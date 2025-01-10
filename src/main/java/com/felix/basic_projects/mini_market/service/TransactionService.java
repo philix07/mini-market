@@ -6,15 +6,14 @@ import com.felix.basic_projects.mini_market.exception.product.InvalidStockQuanti
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
 import com.felix.basic_projects.mini_market.exception.transaction.DuplicateTransactionException;
 import com.felix.basic_projects.mini_market.exception.transaction.TransactionNotFoundException;
-import com.felix.basic_projects.mini_market.model.Customer;
-import com.felix.basic_projects.mini_market.model.Product;
-import com.felix.basic_projects.mini_market.model.Transaction;
-import com.felix.basic_projects.mini_market.model.TransactionItem;
+import com.felix.basic_projects.mini_market.model.entity.Customer;
+import com.felix.basic_projects.mini_market.model.entity.Product;
+import com.felix.basic_projects.mini_market.model.entity.Transaction;
+import com.felix.basic_projects.mini_market.model.entity.TransactionItem;
 import com.felix.basic_projects.mini_market.repository.CustomerRepository;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import com.felix.basic_projects.mini_market.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -136,7 +135,7 @@ public class TransactionService {
         // Since both "oldTransactionItem" and "oldTransaction.getTransactionItems()" referenced
         // the same TransactionItem object, when there is change of fields (modification/updates),
         // it affects both of them. But this only works for updating feature, not with deleting or adding.
-        // That's why when i updated the "oldTransactionItem" field, the "oldTransaction.getTransactionItems()"
+        // That's why when I updated the "oldTransactionItem" field, the "oldTransaction.getTransactionItems()"
         // is also affected without me to directly accessing the "List<TransactionItem>" from the "oldTransaction"
 
         // But turns out Hibernate can handle this without creating a new list.

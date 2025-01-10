@@ -1,6 +1,6 @@
 package com.felix.basic_projects.mini_market.repository;
 
-import com.felix.basic_projects.mini_market.model.User;
+import com.felix.basic_projects.mini_market.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

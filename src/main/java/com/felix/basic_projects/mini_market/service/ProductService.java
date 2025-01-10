@@ -2,16 +2,14 @@ package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.product.DuplicateProductException;
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
-import com.felix.basic_projects.mini_market.model.Product;
+import com.felix.basic_projects.mini_market.model.entity.Product;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {

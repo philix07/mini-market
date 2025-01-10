@@ -1,5 +1,6 @@
-package com.felix.basic_projects.mini_market.model;
+package com.felix.basic_projects.mini_market.model.dto.response;
 
+import com.felix.basic_projects.mini_market.model.entity.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -7,8 +8,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 // Represents stock updates (e.g., new stock arrivals or adjustments).
-@Entity
-public class StockEntry {
+public class StockEntryResponseDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,9 +37,9 @@ public class StockEntry {
     }
   }
 
-  public StockEntry() {}
+  public StockEntryResponseDTO() {}
 
-  public StockEntry(Long id, LocalDateTime createdAt, Product product, int quantity, double totalPrice) {
+  public StockEntryResponseDTO(Long id, LocalDateTime createdAt, Product product, int quantity, double totalPrice) {
     this.id = id;
     this.createdAt = createdAt;
     this.product = product;
@@ -47,7 +47,7 @@ public class StockEntry {
     this.totalPrice = totalPrice;
   }
 
-  public StockEntry(Product product, int quantity, double totalPrice) {
+  public StockEntryResponseDTO(Product product, int quantity, double totalPrice) {
     this.product = product;
     this.quantity = quantity;
     this.totalPrice = totalPrice;

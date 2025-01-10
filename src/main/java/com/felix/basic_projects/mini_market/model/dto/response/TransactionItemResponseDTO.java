@@ -1,15 +1,15 @@
-package com.felix.basic_projects.mini_market.model;
+package com.felix.basic_projects.mini_market.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.felix.basic_projects.mini_market.model.entity.Product;
+import com.felix.basic_projects.mini_market.model.entity.Transaction;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 // Represents individual items within a transaction.
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"transaction_id", "product_id"}))
-public class TransactionItem {
+public class TransactionItemResponseDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +44,9 @@ public class TransactionItem {
     return total;
   }
 
-  public TransactionItem() {}
+  public TransactionItemResponseDTO() {}
 
-  public TransactionItem(Long id, Transaction transaction, Product product, int quantity, double total, double price) {
+  public TransactionItemResponseDTO(Long id, Transaction transaction, Product product, int quantity, double total, double price) {
     this.id = id;
     this.transaction = transaction;
     this.product = product;
@@ -55,7 +55,7 @@ public class TransactionItem {
     this.price = price;
   }
 
-  public TransactionItem(Transaction transaction, int quantity, double price, Product product) {
+  public TransactionItemResponseDTO(Transaction transaction, int quantity, double price, Product product) {
     this.transaction = transaction;
     this.quantity = quantity;
     this.price = price;

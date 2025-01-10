@@ -2,7 +2,7 @@ package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.user.UserAlreadyExistException;
 import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
-import com.felix.basic_projects.mini_market.model.User;
+import com.felix.basic_projects.mini_market.model.entity.User;
 import com.felix.basic_projects.mini_market.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

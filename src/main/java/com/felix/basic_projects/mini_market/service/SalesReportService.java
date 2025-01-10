@@ -2,15 +2,13 @@ package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.sales_report.EmptySalesReportException;
 import com.felix.basic_projects.mini_market.exception.sales_report.InvalidSalesReportDateRangeException;
-import com.felix.basic_projects.mini_market.model.*;
-import com.felix.basic_projects.mini_market.model.enums.SalesReportType;
+import com.felix.basic_projects.mini_market.model.entity.*;
 import com.felix.basic_projects.mini_market.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;

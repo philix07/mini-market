@@ -1,6 +1,5 @@
-package com.felix.basic_projects.mini_market.model;
+package com.felix.basic_projects.mini_market.model.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,8 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Entity(name = "app_user")
-public class User {
+public class UserResponseDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +34,9 @@ public class User {
   @NotNull(message = "User status cannot be null")
   private boolean isActive; // Status of the user
 
-  public User() {}
+  public UserResponseDTO() {}
 
-  public User(String email, String username, String password, String role, boolean isActive) {
+  public UserResponseDTO(String email, String username, String password, String role, boolean isActive) {
     this.email = email;
     this.username = username;
     this.password = password;

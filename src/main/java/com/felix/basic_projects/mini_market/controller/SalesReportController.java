@@ -1,7 +1,6 @@
 package com.felix.basic_projects.mini_market.controller;
 
-import com.felix.basic_projects.mini_market.model.SalesReport;
-import com.felix.basic_projects.mini_market.model.enums.SalesReportType;
+import com.felix.basic_projects.mini_market.model.entity.SalesReport;
 import com.felix.basic_projects.mini_market.service.SalesReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/v1")

@@ -1,13 +1,12 @@
 package com.felix.basic_projects.mini_market.controller;
 
-import com.felix.basic_projects.mini_market.model.Customer;
+import com.felix.basic_projects.mini_market.model.entity.Customer;
 import com.felix.basic_projects.mini_market.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.felix.basic_projects.mini_market.model.enums;
+package com.felix.basic_projects.mini_market.model.entity.enums;
 
 public enum PaymentMethod {
 

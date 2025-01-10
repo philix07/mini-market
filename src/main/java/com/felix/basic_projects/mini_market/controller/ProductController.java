@@ -1,6 +1,6 @@
 package com.felix.basic_projects.mini_market.controller;
 
-import com.felix.basic_projects.mini_market.model.Product;
+import com.felix.basic_projects.mini_market.model.entity.Product;
 import com.felix.basic_projects.mini_market.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 // handles "Product" and "StockEntry" model class
 @RestController

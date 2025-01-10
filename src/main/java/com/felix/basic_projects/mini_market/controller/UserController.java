@@ -1,6 +1,6 @@
 package com.felix.basic_projects.mini_market.controller;
 
-import com.felix.basic_projects.mini_market.model.User;
+import com.felix.basic_projects.mini_market.model.entity.User;
 import com.felix.basic_projects.mini_market.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
