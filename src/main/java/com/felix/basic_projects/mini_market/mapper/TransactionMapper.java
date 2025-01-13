@@ -16,6 +16,7 @@ public class TransactionMapper {
     TransactionResponseDTO's field
       private Long id;
       private Long customerId;
+      private Long userId;
       private String customerName;
       private LocalDateTime transactionDate;
       private PaymentMethod paymentMethod;
@@ -33,6 +34,8 @@ public class TransactionMapper {
       .id(transaction.getId())
       .customerId(transaction.getCustomer().getId())
       .customerName(transaction.getCustomer().getName())
+      .userId(transaction.getUser().getId())
+      .username(transaction.getUser().getUsername())
       .transactionDate(transaction.getTransactionDate())
       .paymentMethod(transaction.getPaymentMethod())
       .transactionItems(itemResponseDTOS)

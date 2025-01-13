@@ -6,17 +6,19 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class CreateStockEntryRequestDTO {
 
-  @NotNull(message = "Product id must be filled")
+  @NotNull(message = "Product id field must be provided")
   private Long productId;
+
+  @NotNull(message = "User id field must be provided")
+  private Long userId;
 
   @NotNull(message = "Quantity field value must be filled")
   @Positive(message = "Quantity value added must be positive")

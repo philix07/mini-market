@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 public class StockEntry {
 
@@ -23,8 +24,12 @@ public class StockEntry {
   private LocalDateTime createdAt; // Date of stock addition
 
   @ManyToOne(fetch = FetchType.EAGER) // Many StockEntries can be associated with one Product
-  @NotNull(message = "Product id must be filled")
+  @NotNull(message = "Product id field must be provided")
   private Product product; // Foreign Key to Product
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @NotNull(message = "User id field must be provided")
+  private User user;
 
   @NotNull(message = "Quantity field value must be filled")
   @Positive(message = "Quantity value added must be positive")

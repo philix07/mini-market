@@ -1,5 +1,9 @@
 package com.felix.basic_projects.mini_market.controller;
 
+import com.felix.basic_projects.mini_market.mapper.CustomerMapper;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateCustomerRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateCustomerRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.CustomerResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.Customer;
 import com.felix.basic_projects.mini_market.service.CustomerService;
 import jakarta.validation.Valid;
@@ -19,38 +23,37 @@ public class CustomerController {
   private CustomerService customerService;
 
   @GetMapping("customers")
-  public ResponseEntity<List<Customer>> retrieveAllCustomer() {
-    List<Customer> customers = customerService.retrieveAllCustomer();
-    return ResponseEntity.ok(customers);
+  public ResponseEntity<List<CustomerResponseDTO>> retrieveAllCustomer() {
+    return ResponseEntity.ok(customerService.retrieveAllCustomer());
   }
 
   @GetMapping("customers/{id}")
-  public ResponseEntity<Customer> findCustomerById(@PathVariable Long id) {
-    Customer customer = customerService.findCustomerById(id);
-    return ResponseEntity.ok(customer);
+  public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable Long id) {
+    return ResponseEntity.ok(customerService.findCustomerById(id));
   }
 
   @PostMapping("customers")
-  public ResponseEntity<Customer> saveCustomer(@Valid @RequestBody Customer customer) {
-    Customer newCustomer = customerService.saveCustomer(customer);
+  public ResponseEntity<CustomerResponseDTO> saveCustomer(@Valid @RequestBody CreateCustomerRequestDTO customer) {
+    CustomerResponseDTO createdCustomer = customerService.saveCustomer(customer);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
       .path("/{id}")
-      .buildAndExpand(customer.getId())
+      .buildAndExpand(createdCustomer.getId())
       .toUri();
 
-    return ResponseEntity.created(location).body(newCustomer);
+    return ResponseEntity.created(location).body(createdCustomer);
   }
 
   @DeleteMapping("customers/{id}")
-  public ResponseEntity<Customer> deleteCustomerById(@PathVariable Long id) {
-    Customer deletedCustomer = customerService.deleteCustomerById(id);
-    return ResponseEntity.ok(deletedCustomer);
+  public ResponseEntity<CustomerResponseDTO> deleteCustomerById(@PathVariable Long id) {
+    return ResponseEntity.ok(customerService.deleteCustomerById(id));
   }
 
   @PatchMapping("customers/{id}")
-  public ResponseEntity<Customer> updateCustomerById(@PathVariable Long id, @Valid @RequestBody Customer customer) {
-    Customer updatedCustomer = customerService.updateCustomerById(id, customer);
-    return ResponseEntity.ok(updatedCustomer);
+  public ResponseEntity<CustomerResponseDTO> updateCustomerById(
+    @PathVariable Long id,
+    @Valid @RequestBody UpdateCustomerRequestDTO customer
+  ) {
+    return ResponseEntity.ok(customerService.updateCustomerById(id, customer));
   }
 }

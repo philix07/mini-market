@@ -5,6 +5,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductTransactionSummary {
 
   private Product product;

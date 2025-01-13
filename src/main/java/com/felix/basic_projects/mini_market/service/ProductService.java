@@ -2,7 +2,12 @@ package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.product.DuplicateProductException;
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.ProductMapper;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateProductRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateProductRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.ProductResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.Product;
+import com.felix.basic_projects.mini_market.model.entity.enums.ProductCategory;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,27 +22,41 @@ public class ProductService {
   @Autowired
   private ProductRepository productRepository;
 
-  public List<Product> retrieveAllProduct() {
+  @Autowired
+  private ProductMapper productMapper;
+
+  public List<ProductResponseDTO> retrieveAllProduct() {
     List<Product> products = productRepository.findAll();
 
     if(products.isEmpty()) {
       throw new ProductNotFoundException("There is no product in this application");
     }
 
-    return products;
+    return products.stream().map(productMapper::mapEntityToResponseDTO).toList();
   }
 
 
-  public Product findProductById(Long id) {
-    return productRepository.findById(id)
+  public ProductResponseDTO findProductById(Long id) {
+    return productRepository.findById(id).map(product -> productMapper.mapEntityToResponseDTO(product))
       .orElseThrow(() -> new ProductNotFoundException("There is not product with id : " + id));
   }
 
   @Transactional
-  public List<Product> saveAllProduct(List<Product> products) {
+  public List<ProductResponseDTO> saveAllProduct(List<CreateProductRequestDTO> productsRequest) {
     // Why do we use set?
     // A. we can quickly check if a value exists in a Set using contains().
     // B. searching through set is super quick compared to searching through a List.
+
+    // Map the CreateProductRequestDTO into Product Entity first.
+    List<Product> products = productsRequest.stream().map(
+      request -> Product.builder()
+        .name(request.getName())
+        .barcode(request.getBarcode())
+        .category(ProductCategory.fromString(request.getCategory()))
+        .price(request.getPrice())
+        .stockQuantity(request.getStockQuantity())
+        .build()
+    ).toList();
 
     // Check if one of the products have duplicate names in the database
     Set<String> existingName = productRepository.findNamesInSet(
@@ -61,39 +80,54 @@ public class ProductService {
       }
     }
 
-    return productRepository.saveAll(products);
+    productRepository.saveAll(products);
+    return products.stream().map(productMapper::mapEntityToResponseDTO).toList();
   }
 
-  public Product saveProduct(Product product) {
-    if(productRepository.existsByName(product.getName())) {
-      throw new DuplicateProductException("There is already product with name : '" +product.getName() + "'");
-    } else if(productRepository.existsByBarcode(product.getBarcode())) {
-      throw new DuplicateProductException("There is already product with barcode : '" +product.getBarcode() + "'");
+  public ProductResponseDTO saveProduct(CreateProductRequestDTO request) {
+    if(productRepository.existsByName(request.getName())) {
+      throw new DuplicateProductException("There is already product with name : '" + request.getName() + "'");
+    } else if(productRepository.existsByBarcode(request.getBarcode())) {
+      throw new DuplicateProductException("There is already product with barcode : '" + request.getBarcode() + "'");
     }
 
-    return productRepository.save(product);
+    Product product = Product.builder()
+      .name(request.getName())
+      .barcode(request.getBarcode())
+      .category(ProductCategory.fromString(request.getCategory()))
+      .price(request.getPrice())
+      .stockQuantity(request.getStockQuantity())
+      .build();
+
+    productRepository.save(product);
+    return productMapper.mapEntityToResponseDTO(product);
   }
 
 
-  public Product deleteProductById(Long id) {
+  public ProductResponseDTO deleteProductById(Long id) {
     Product deletedProduct = productRepository.findById(id)
       .orElseThrow(() -> new ProductNotFoundException("There is not product with id : " + id));
 
     productRepository.delete(deletedProduct);
-    return deletedProduct;
+    return productMapper.mapEntityToResponseDTO(deletedProduct);
   }
 
 
-  public Product updateProductById(Long id, Product product) {
-    return productRepository.findById(id).map(
+  public ProductResponseDTO updateProductById(Long id, UpdateProductRequestDTO request) {
+    return productRepository.findById(id)
+      .map(
       newProd -> {
-        newProd.setName(product.getName());
-        newProd.setBarcode(product.getBarcode());
-        newProd.setCategory(product.getCategory());
-        newProd.setPrice(product.getPrice());
-        newProd.setStockQuantity(product.getStockQuantity());
+        newProd.setName(request.getName());
+        newProd.setBarcode(request.getBarcode());
+        newProd.setCategory(ProductCategory.fromString(request.getCategory()));
+        newProd.setPrice(request.getPrice());
+        newProd.setStockQuantity(request.getStockQuantity());
         return productRepository.save(newProd);
       }
-    ).orElseThrow(() -> new ProductNotFoundException("There is not product with id : " + id));
+      )
+      .map(
+      product -> productMapper.mapEntityToResponseDTO(product)
+      )
+      .orElseThrow(() -> new ProductNotFoundException("There is not product with id : " + id));
   }
 }

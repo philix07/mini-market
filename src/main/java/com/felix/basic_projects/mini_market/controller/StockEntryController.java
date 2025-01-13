@@ -1,5 +1,8 @@
 package com.felix.basic_projects.mini_market.controller;
 
+import com.felix.basic_projects.mini_market.model.dto.request.CreateStockEntryRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateStockEntryRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.StockEntryResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.StockEntry;
 import com.felix.basic_projects.mini_market.service.StockEntryService;
 import jakarta.validation.Valid;
@@ -19,20 +22,20 @@ public class StockEntryController {
   StockEntryService stockEntryService;
 
   @GetMapping("/stockEntries")
-  public ResponseEntity<List<StockEntry>> retrieveAllStockEntry() {
-    List<StockEntry> stockEntries = stockEntryService.retrieveAllStockEntry();
-    return ResponseEntity.ok(stockEntries);
+  public ResponseEntity<List<StockEntryResponseDTO>> retrieveAllStockEntry() {
+    return ResponseEntity.ok(stockEntryService.retrieveAllStockEntry());
   }
 
   @GetMapping("/stockEntries/{id}")
-  public ResponseEntity<StockEntry> findStockEntryById(@PathVariable Long id) {
-    StockEntry stockEntry = stockEntryService.findStockEntryById(id);
-    return ResponseEntity.ok(stockEntry);
+  public ResponseEntity<StockEntryResponseDTO> findStockEntryById(@PathVariable Long id) {
+    return ResponseEntity.ok(stockEntryService.findStockEntryById(id));
   }
 
   @PostMapping("/stockEntries")
-  public ResponseEntity<StockEntry> saveStockEntry(@Valid @RequestBody StockEntry stockEntry) {
-    StockEntry newStockEntry = stockEntryService.saveStockEntry(stockEntry);
+  public ResponseEntity<StockEntryResponseDTO> saveStockEntry(
+    @Valid @RequestBody CreateStockEntryRequestDTO stockEntry
+  ) {
+    StockEntryResponseDTO newStockEntry = stockEntryService.saveStockEntry(stockEntry);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
       .path("/{id}")
@@ -43,15 +46,16 @@ public class StockEntryController {
   }
 
   @DeleteMapping("/stockEntries/{id}")
-  public ResponseEntity<StockEntry> deleteStockEntryById(@PathVariable Long id) {
-    StockEntry stockEntry  = stockEntryService.deleteStockEntryById(id);
-    return ResponseEntity.ok(stockEntry);
+  public ResponseEntity<StockEntryResponseDTO> deleteStockEntryById(@PathVariable Long id) {
+    return ResponseEntity.ok(stockEntryService.deleteStockEntryById(id));
   }
 
   @PatchMapping("/stockEntries/{id}")
-  public ResponseEntity<StockEntry> updateStockEntryById(@PathVariable Long id, @Valid @RequestBody StockEntry stockEntry) {
-    StockEntry updatedStockEntry  = stockEntryService.updateStockEntryById(id, stockEntry);
-    return ResponseEntity.ok(updatedStockEntry);
+  public ResponseEntity<StockEntryResponseDTO> updateStockEntryById(
+    @PathVariable Long id,
+    @Valid @RequestBody UpdateStockEntryRequestDTO stockEntryRequest
+  ) {
+    return ResponseEntity.ok(stockEntryService.updateStockEntryById(id, stockEntryRequest));
   }
 
 }

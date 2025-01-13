@@ -5,12 +5,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class CreateProductRequestDTO {
 
-  @NotEmpty(message = "Password cannot be empty or null")
+  @NotEmpty(message = "Product cannot be empty or null")
   @Size(min = 4, message = "Product name should have at least 4 character")
   private String name;
 

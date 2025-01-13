@@ -20,6 +20,7 @@ public class StockEntryMapper {
       .id(stockEntry.getId())
       .createdAt(stockEntry.getCreatedAt())
       .productId(stockEntry.getProduct().getId())
+      .userId(stockEntry.getUser().getId())
       .quantity(stockEntry.getQuantity())
       .totalPrice(stockEntry.getTotalPrice())
       .build();

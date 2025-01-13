@@ -18,6 +18,8 @@ public class TransactionResponseDTO {
   private Long id;
   private Long customerId;
   private String customerName;
+  private Long userId;
+  private String username;
   private LocalDateTime transactionDate;
   private PaymentMethod paymentMethod;
   private List<TransactionItemResponseDTO> transactionItems;

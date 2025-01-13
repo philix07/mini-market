@@ -1,16 +1,11 @@
 package com.felix.basic_projects.mini_market.model.dto.request;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class CreateCustomerRequestDTO {
 
   @Email(message = "Invalid email format provided")

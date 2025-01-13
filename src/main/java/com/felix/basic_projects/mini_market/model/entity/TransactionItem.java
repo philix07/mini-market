@@ -11,6 +11,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"transaction_id", "product_id"}))
 public class TransactionItem {

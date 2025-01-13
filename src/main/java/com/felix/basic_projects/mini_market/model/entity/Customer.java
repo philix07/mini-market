@@ -9,13 +9,10 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Builder
 @Entity
 public class Customer {
 

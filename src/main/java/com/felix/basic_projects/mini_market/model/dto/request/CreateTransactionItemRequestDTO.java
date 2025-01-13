@@ -24,7 +24,4 @@ public class CreateTransactionItemRequestDTO {
   @Min(value = 1, message = "Quantity must be at least 1")
   private int quantity;
 
-  @PositiveOrZero(message = "Price should be >= 0")
-  private double price;
-
 }

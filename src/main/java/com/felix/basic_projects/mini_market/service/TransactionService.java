@@ -1,22 +1,26 @@
 package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.customer.CustomerNotFoundException;
-import com.felix.basic_projects.mini_market.exception.customer.InvalidCustomerDetailsException;
 import com.felix.basic_projects.mini_market.exception.product.InvalidStockQuantityException;
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
-import com.felix.basic_projects.mini_market.exception.transaction.DuplicateTransactionException;
 import com.felix.basic_projects.mini_market.exception.transaction.TransactionNotFoundException;
-import com.felix.basic_projects.mini_market.model.entity.Customer;
-import com.felix.basic_projects.mini_market.model.entity.Product;
-import com.felix.basic_projects.mini_market.model.entity.Transaction;
-import com.felix.basic_projects.mini_market.model.entity.TransactionItem;
+import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.TransactionItemMapper;
+import com.felix.basic_projects.mini_market.mapper.TransactionMapper;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateTransactionRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateTransactionRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.TransactionResponseDTO;
+import com.felix.basic_projects.mini_market.model.entity.*;
+import com.felix.basic_projects.mini_market.model.entity.enums.PaymentMethod;
 import com.felix.basic_projects.mini_market.repository.CustomerRepository;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import com.felix.basic_projects.mini_market.repository.TransactionRepository;
+import com.felix.basic_projects.mini_market.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,18 +38,32 @@ public class TransactionService {
   @Autowired
   private CustomerRepository customerRepository;
 
-  public List<Transaction> retrieveAllTransaction() {
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private TransactionMapper transactionMapper;
+
+  @Autowired
+  private TransactionItemMapper transactionItemMapper;
+
+  public List<TransactionResponseDTO> retrieveAllTransaction() {
     List<Transaction> transactions = transactionRepository.findAll();
+
     if(transactions.isEmpty()) {
       throw new TransactionNotFoundException("There is no transaction in this application");
     }
-    return transactions;
+
+    return transactions.stream().map(transactionMapper::mapEntityToResponseDTO).toList();
   }
 
-  public Transaction findTransactionById(Long id) {
+  public TransactionResponseDTO findTransactionById(Long id) {
     return transactionRepository.findById(id)
+      .map(transactionMapper::mapEntityToResponseDTO)
       .orElseThrow(() -> new TransactionNotFoundException("No transaction with id : " + id));
   }
+
+
 
   // Why TransactionItemRepository is not required?
   // -------- Cascading Saves --------
@@ -66,42 +84,115 @@ public class TransactionService {
   // The @Transactional annotation ensures the operation is atomic. If anything fails
   // (e.g., a validation error), the entire transaction will be rolled back.
   @Transactional
-  public Transaction saveTransaction(Transaction transaction) {
-    if(transaction.getId() != null && transactionRepository.existsById(transaction.getId())) {
-      throw new DuplicateTransactionException("Transaction with id:" + transaction.getId() + "already exists");
-    }
+  public TransactionResponseDTO saveTransaction(CreateTransactionRequestDTO transactionRequest) {
+    Long customerId = transactionRequest.getCustomerId();
+    Long userId = transactionRequest.getUserId();
 
-    if (transaction.getCustomer() == null || transaction.getCustomer().getId() == null) {
-      throw new InvalidCustomerDetailsException("Customer ID must not be null");
-    }
+    // fetch customer details
+    Customer customer = customerRepository.findById(customerId)
+      .orElseThrow(() -> new CustomerNotFoundException("There is no customer with id : " + customerId));
 
-    Transaction mappedTransaction = mapTransactionDetail(transaction, TransactionOperationType.SAVE_TRANSACTION);
+    // fetch user details
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new UserNotFoundException("There is no user with id : " + userId));
 
-    return transactionRepository.save(mappedTransaction);
+    // map from List<Request> into entity object List<TransactionItem>
+    List<TransactionItem> transactionItems = transactionRequest.getTransactionItems()
+      .stream()
+      .map(
+        requestDTO -> {
+          Product mappedProduct = productRepository.findById(requestDTO.getProductId())
+            .map(
+              // synchronize Product's stockQuantity data in the database
+              product -> {
+                product.setStockQuantity(product.getStockQuantity() - requestDTO.getQuantity());
+
+                if(product.getStockQuantity() < 0) {
+                  throw new InvalidStockQuantityException(
+                    "Not enough stock for product : '" + product.getName() +"', stock after transaction : " + product.getStockQuantity()
+                  );
+                }
+
+                return productRepository.saveAndFlush(product);
+              }
+            )
+            .orElseThrow(
+              () -> new ProductNotFoundException("Product with ID : " + requestDTO.getProductId() + " not found")
+            );
+
+          TransactionItem item = new TransactionItem();
+          item.setProduct(mappedProduct);
+          item.setPrice(mappedProduct.getPrice());
+          item.setQuantity(requestDTO.getQuantity());
+
+          return item;
+        }
+      )
+      .toList();
+
+    Transaction transaction = new Transaction();
+      transaction.setTransactionDate(LocalDateTime.now());
+      transaction.setUser(user);
+      transaction.setCustomer(customer);
+      transaction.setPaymentMethod(transactionRequest.getPaymentMethod());
+      transaction.setTransactionItems(transactionItems);
+
+    transactionRepository.save(transaction);
+    return transactionMapper.mapEntityToResponseDTO(transaction);
   }
 
+
+
   @Transactional
-  public Transaction deleteTransactionById(Long id) {
-    Transaction transaction = mapTransactionDetail(
-      transactionRepository
-        .findById(id)
-        .orElseThrow(() -> new TransactionNotFoundException("No transaction with id : " + id)),
-      TransactionOperationType.DELETE_TRANSACTION
-    );
+  public TransactionResponseDTO deleteTransactionById(Long id) {
+    Transaction transaction = transactionRepository.findById(id)
+        .orElseThrow(() -> new TransactionNotFoundException("No transaction with id : " + id));
+
+    // Synchronize the quantity when the transaction item is deleted
+    for (TransactionItem item : transaction.getTransactionItems()) {
+      Product product = productRepository.findById(item.getProduct().getId())
+        .orElseThrow(() -> new ProductNotFoundException("There is no product with id : " + item.getProduct().getId()));
+
+      product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+      productRepository.save(product);
+    }
 
     transactionRepository.delete(transaction);
-    return transaction;
+    return transactionMapper.mapEntityToResponseDTO(transaction);
   }
 
+
+
   @Transactional
-  public Transaction updateTransactionById(Long id, Transaction transaction) {
+  public TransactionResponseDTO updateTransactionById(Long id, UpdateTransactionRequestDTO transaction) {
     Transaction oldTransaction = transactionRepository.findById(id)
       .orElseThrow(() -> new TransactionNotFoundException("No transaction with id : " + id));
 
     oldTransaction.setPaymentMethod(transaction.getPaymentMethod());
 
+    // map List<CreateTransactionItemRequestDTO> into List<TransactionItem> for easier operation
+    List<TransactionItem> newTransactionItem = transaction.getTransactionItems()
+      .stream()
+      .map(
+        newItem -> {
+          Product product = productRepository.findById(newItem.getProductId())
+            .orElseThrow(
+              () -> new ProductNotFoundException("Product with ID : " + newItem.getProductId() + " not found")
+            );
+
+          TransactionItem item = new TransactionItem();
+          item.setProduct(product);
+          item.setPrice(product.getPrice());
+          item.setQuantity(newItem.getQuantity());
+
+          return item;
+        }
+      )
+      .toList();
+
+
     // map List<TransactionItem> into Map for easier operation
-    Map<Long, TransactionItem> newTransactionItems = transaction.getTransactionItems().stream()
+    Map<Long, TransactionItem> newTransactionItems = newTransactionItem.stream()
       .collect(Collectors.toMap(
         item -> item.getProduct().getId(),
         item -> item
@@ -183,58 +274,11 @@ public class TransactionService {
     }
 
     oldTransaction.setTransactionItems(updatedTransactionItems);
-    return transactionRepository.save(oldTransaction);
+    transactionRepository.save(oldTransaction);
+
+    return transactionMapper.mapEntityToResponseDTO(oldTransaction);
   }
 
-  @Transactional
-  private Transaction mapTransactionDetail(Transaction transaction, TransactionOperationType operationType) {
-    Customer customer = customerRepository.findById(transaction.getCustomer().getId())
-      .orElseThrow(
-        () -> new CustomerNotFoundException("Customer with ID : " + transaction.getCustomer().getId() + " not found")
-      );
-    transaction.setCustomer(new Customer(
-      customer.getId(),
-      customer.getEmail(),
-      customer.getName(),
-      customer.getContactNumber()
-    ));
-
-    if (transaction.getTransactionItems() != null) {
-      for (TransactionItem transactionItem : transaction.getTransactionItems()) {
-        transactionItem.setTransaction(transaction); // Set parent transaction
-        Product mappedProduct = productRepository.findById(transactionItem.getProduct().getId())
-          .map(
-            // synchronize Product's stockQuantity data in the database
-            product -> {
-
-              if(operationType == TransactionOperationType.SAVE_TRANSACTION) {
-                product.setStockQuantity(product.getStockQuantity() - transactionItem.getQuantity());
-              } else if (operationType == TransactionOperationType.DELETE_TRANSACTION) {
-                product.setStockQuantity(product.getStockQuantity() + transactionItem.getQuantity());
-              }
-
-              if(product.getStockQuantity() < 0) {
-                throw new InvalidStockQuantityException(
-                  "Not enough stock for product : '" + product.getName() +"', stock after transaction : " + product.getStockQuantity()
-                );
-              }
-
-              return productRepository.saveAndFlush(product);
-            }
-          )
-          .orElseThrow(
-            () -> new ProductNotFoundException("Product with ID : " + transactionItem.getProduct().getId() + " not found")
-          );
-
-        transactionItem.setProduct(mappedProduct);
-      }
-    }
-    return transaction;
-  }
-
-  private enum TransactionOperationType {
-    SAVE_TRANSACTION, DELETE_TRANSACTION
-  }
 }
 
 

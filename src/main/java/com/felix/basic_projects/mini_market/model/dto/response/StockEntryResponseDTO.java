@@ -20,6 +20,7 @@ public class StockEntryResponseDTO {
   private Long id;
   private LocalDateTime createdAt;
   private Long productId;
+  private Long userId;
   private int quantity;
   private double totalPrice;
 }

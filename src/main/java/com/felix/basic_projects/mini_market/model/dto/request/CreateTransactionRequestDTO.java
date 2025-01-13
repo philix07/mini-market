@@ -9,18 +9,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateTransactionRequestDTO {
 
   @NotNull(message = "paymentMethod is not provided")
-  private String paymentMethod;
+  private PaymentMethod paymentMethod;
 
   @NotNull(message = "There should be at least 1 transaction item for each transaction")
   private List<CreateTransactionItemRequestDTO> transactionItems;
@@ -28,10 +29,8 @@ public class CreateTransactionRequestDTO {
   @NotNull(message = "customerId must be filled")
   private Long customerId;
 
-  // force "totalPrice" to be serialized by adding the @JsonProperty annotation,
-  // so we don't need to manually include the totalPrice in JSON payload
-  @JsonProperty
-  private double totalPrice; // Total price of all the transaction
+  @NotNull(message = "customerId must be filled")
+  private Long userId;
 
 }
   

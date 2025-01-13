@@ -1,5 +1,8 @@
 package com.felix.basic_projects.mini_market.controller;
 
+import com.felix.basic_projects.mini_market.model.dto.request.CreateTransactionRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateTransactionRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.TransactionResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.Transaction;
 import com.felix.basic_projects.mini_market.service.TransactionService;
 import jakarta.validation.Valid;
@@ -19,20 +22,18 @@ public class TransactionController {
   TransactionService service;
 
   @GetMapping("transactions")
-  ResponseEntity<List<Transaction>> retrieveAllTransaction() {
-    List<Transaction> transactions = service.retrieveAllTransaction();
-    return ResponseEntity.ok(transactions);
+  ResponseEntity<List<TransactionResponseDTO>> retrieveAllTransaction() {
+    return ResponseEntity.ok(service.retrieveAllTransaction());
   }
 
   @GetMapping("transactions/{id}")
-  ResponseEntity<Transaction> findTransactionById(@PathVariable Long id) {
-    Transaction transaction = service.findTransactionById(id);
-    return ResponseEntity.ok(transaction);
+  ResponseEntity<TransactionResponseDTO> findTransactionById(@PathVariable Long id) {
+    return ResponseEntity.ok(service.findTransactionById(id));
   }
 
-  @PostMapping(path = "transactions", consumes = "application/json")
-  ResponseEntity<Transaction> saveTransaction(@Valid @RequestBody Transaction transaction) {
-    Transaction newTransaction = service.saveTransaction(transaction);
+  @PostMapping("transactions")
+  ResponseEntity<TransactionResponseDTO> saveTransaction(@Valid @RequestBody CreateTransactionRequestDTO transaction) {
+    TransactionResponseDTO newTransaction = service.saveTransaction(transaction);
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
       .path("/{id}")
@@ -43,14 +44,15 @@ public class TransactionController {
   }
 
   @DeleteMapping("transactions/{id}")
-  ResponseEntity<Transaction> deleteTransactionById(@PathVariable Long id) {
-    Transaction deletedTransaction = service.deleteTransactionById(id);
-    return ResponseEntity.ok(deletedTransaction);
+  ResponseEntity<TransactionResponseDTO> deleteTransactionById(@PathVariable Long id) {
+    return ResponseEntity.ok(service.deleteTransactionById(id));
   }
 
   @PatchMapping("transactions/{id}")
-  ResponseEntity<Transaction> updateTransactionById(@PathVariable Long id, @Valid @RequestBody Transaction transaction) {
-    Transaction updatedTransaction = service.updateTransactionById(id, transaction);
-    return ResponseEntity.ok(updatedTransaction);
+  ResponseEntity<TransactionResponseDTO> updateTransactionById(
+    @PathVariable Long id,
+    @Valid @RequestBody UpdateTransactionRequestDTO transaction
+  ) {
+    return ResponseEntity.ok(service.updateTransactionById(id, transaction));
   }
 }

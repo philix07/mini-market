@@ -1,13 +1,10 @@
 package com.felix.basic_projects.mini_market.model.dto.request;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class CreateActivityLogRequestDTO {
 
   @NotNull(message = "User ID must be filled")

@@ -10,9 +10,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 // Represents sales transactions.
-@Data
+@Getter
+@ToString
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 public class Transaction {
 
@@ -40,7 +43,12 @@ public class Transaction {
   @Setter
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "customer_id")
-  private Customer customer; // Optional: Customer ID if linked
+  private Customer customer; // Link to Customer ID
+
+  @Setter
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "user_id")
+  private User user; // Link to USER ID
 
   @JsonProperty
   private double totalPrice; // Total price of all the transaction

@@ -3,14 +3,22 @@ package com.felix.basic_projects.mini_market.service;
 import com.felix.basic_projects.mini_market.exception.product.InvalidStockQuantityException;
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
 import com.felix.basic_projects.mini_market.exception.stock_entry.StockEntryNotFoundException;
+import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.StockEntryMapper;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateStockEntryRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.UpdateStockEntryRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.StockEntryResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.Product;
 import com.felix.basic_projects.mini_market.model.entity.StockEntry;
+import com.felix.basic_projects.mini_market.model.entity.User;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import com.felix.basic_projects.mini_market.repository.StockEntryRepository;
+import com.felix.basic_projects.mini_market.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,31 +30,36 @@ public class StockEntryService {
   @Autowired
   private ProductRepository productRepository;
 
-  public List<StockEntry> retrieveAllStockEntry() {
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private StockEntryMapper stockEntryMapper;
+
+  public List<StockEntryResponseDTO> retrieveAllStockEntry() {
     List<StockEntry> stockEntries = stockEntryRepository.findAll();
 
     if(stockEntries.isEmpty()) {
       throw new StockEntryNotFoundException("There is no stock entry in this application");
     }
 
-    return stockEntries;
+    return stockEntries.stream().map(stockEntryMapper::mapEntityToResponseDTO).toList();
   }
 
-  public StockEntry findStockEntryById(Long id) {
+  public StockEntryResponseDTO findStockEntryById(Long id) {
     return stockEntryRepository.findById(id)
-      .orElseThrow(
-        () -> new StockEntryNotFoundException("There is no stock entry with id : " + id)
-      );
+      .map(stockEntryMapper::mapEntityToResponseDTO)
+      .orElseThrow(() -> new StockEntryNotFoundException("There is no stock entry with id : " + id));
   }
 
   @Transactional
-  public StockEntry saveStockEntry(StockEntry stockEntry) {
+  public StockEntryResponseDTO saveStockEntry(CreateStockEntryRequestDTO stockEntryRequest) {
 
     // synchronize Product's stockQuantity data in the database
-    Product updatedProduct = productRepository.findById(stockEntry.getProduct().getId())
+    Product updatedProduct = productRepository.findById(stockEntryRequest.getProductId())
       .map(
         product -> {
-          product.setStockQuantity(product.getStockQuantity() + stockEntry.getQuantity());
+          product.setStockQuantity(product.getStockQuantity() + stockEntryRequest.getQuantity());
           if(product.getStockQuantity() < 0) {
             throw new InvalidStockQuantityException("Product : '"+ product.getName()+ "' stock quantity becomes invalid : " + product.getStockQuantity());
           }
@@ -62,28 +75,40 @@ public class StockEntryService {
         }
       )
       .orElseThrow(
-        () -> new ProductNotFoundException("There is no product with id : " + stockEntry.getProduct().getId())
+        () -> new ProductNotFoundException("There is no product with id : " + stockEntryRequest.getProductId())
       );
 
-    stockEntry.setProduct(updatedProduct);
-    return stockEntryRepository.save(stockEntry);
+    // fetch detail of user who performed the StockEntry operation
+    User user = userRepository.findById(stockEntryRequest.getUserId())
+      .orElseThrow(() -> new UserNotFoundException("There is no user with id : " + stockEntryRequest.getUserId()));
+
+    StockEntry stockEntry = StockEntry.builder()
+      .user(user)
+      .createdAt(LocalDateTime.now())
+      .product(updatedProduct)
+      .quantity(stockEntryRequest.getQuantity())
+      .totalPrice(stockEntryRequest.getTotalPrice())
+      .build();
+    stockEntryRepository.save(stockEntry);
+
+    return stockEntryMapper.mapEntityToResponseDTO(stockEntry);
   }
 
   @Transactional
-  public StockEntry updateStockEntryById(Long id, StockEntry stockEntry) {
+  public StockEntryResponseDTO updateStockEntryById(Long id, UpdateStockEntryRequestDTO stockEntryRequest) {
     // search for the previous stockEntry
     return stockEntryRepository.findById(id)
       .map(
-        entry -> {
+        stockEntry -> {
           // for updating Product's stockQuantity
-          int updatedStockEntryQuantity = stockEntry.getQuantity() - entry.getQuantity();
+          int updatedStockEntryQuantity = stockEntryRequest.getQuantity() - stockEntry.getQuantity();
 
           // set updated value into previous stockEntry
-          entry.setQuantity(stockEntry.getQuantity());
-          entry.setTotalPrice(stockEntry.getTotalPrice());
+          stockEntry.setQuantity(stockEntryRequest.getQuantity());
+          stockEntry.setTotalPrice(stockEntryRequest.getTotalPrice());
 
           // synchronize Product's stockQuantity data in the database
-          productRepository.findById(entry.getProduct().getId()).map(
+          productRepository.findById(stockEntry.getProduct().getId()).map(
             product -> {
               product.setStockQuantity(product.getStockQuantity() + updatedStockEntryQuantity);
               if(product.getStockQuantity() < 0) {
@@ -94,16 +119,17 @@ public class StockEntryService {
               return productRepository.saveAndFlush(product);
             }
           ) .orElseThrow(
-            () -> new ProductNotFoundException("There is no product with id : " + stockEntry.getProduct().getId())
+            () -> new ProductNotFoundException("There is no product with id : " + stockEntryRequest.getProductId())
           );
 
-        return stockEntryRepository.save(entry);
+          stockEntryRepository.save(stockEntry);
+          return stockEntryMapper.mapEntityToResponseDTO(stockEntry);
       })
       .orElseThrow(() -> new StockEntryNotFoundException("There is no stock entry with id : " + id));
   }
 
   @Transactional
-  public StockEntry deleteStockEntryById(Long id) {
+  public StockEntryResponseDTO deleteStockEntryById(Long id) {
     StockEntry deletedStockEntry = stockEntryRepository.findById(id)
       .orElseThrow(() -> new StockEntryNotFoundException("There is no stock entry with id : " + id));
 
@@ -126,7 +152,7 @@ public class StockEntryService {
       );
 
     stockEntryRepository.delete(deletedStockEntry);
-    return deletedStockEntry;
+    return stockEntryMapper.mapEntityToResponseDTO(deletedStockEntry);
   }
 
 }

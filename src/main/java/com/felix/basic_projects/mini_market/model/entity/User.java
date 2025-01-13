@@ -12,6 +12,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity(name = "app_user")
 public class User {
 
