@@ -1,6 +1,6 @@
 package com.felix.basic_projects.mini_market.controller;
 
-import com.felix.basic_projects.mini_market.model.dto.request.ActivityLogRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateActivityLogRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.ActivityLogResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.ActivityLog;
 import com.felix.basic_projects.mini_market.service.ActivityLogService;
@@ -52,7 +52,7 @@ public class ActivityLogController {
   }
 
   @PostMapping("logs")
-  public ResponseEntity<ActivityLogResponseDTO> saveActivityLog(@RequestBody @Valid ActivityLogRequestDTO request) {
+  public ResponseEntity<ActivityLogResponseDTO> saveActivityLog(@RequestBody @Valid CreateActivityLogRequestDTO request) {
     return ResponseEntity.ok(logService.saveActivityLog(request));
   }
 }

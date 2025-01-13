@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 // Represents individual items within a transaction.
-public class TransactionItemRequestDTO {
+public class UpdateTransactionItemRequestDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +44,9 @@ public class TransactionItemRequestDTO {
     return total;
   }
 
-  public TransactionItemRequestDTO() {}
+  public UpdateTransactionItemRequestDTO() {}
 
-  public TransactionItemRequestDTO(Long id, Transaction transaction, Product product, int quantity, double total, double price) {
+  public UpdateTransactionItemRequestDTO(Long id, Transaction transaction, Product product, int quantity, double total, double price) {
     this.id = id;
     this.transaction = transaction;
     this.product = product;
@@ -55,7 +55,7 @@ public class TransactionItemRequestDTO {
     this.price = price;
   }
 
-  public TransactionItemRequestDTO(Transaction transaction, int quantity, double price, Product product) {
+  public UpdateTransactionItemRequestDTO(Transaction transaction, int quantity, double price, Product product) {
     this.transaction = transaction;
     this.quantity = quantity;
     this.price = price;

@@ -3,7 +3,7 @@ package com.felix.basic_projects.mini_market.service;
 import com.felix.basic_projects.mini_market.exception.activity_log.ActivityLogNotFoundException;
 import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
 import com.felix.basic_projects.mini_market.mapper.ActivityLogMapper;
-import com.felix.basic_projects.mini_market.model.dto.request.ActivityLogRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.request.CreateActivityLogRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.ActivityLogResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.ActivityLog;
 import com.felix.basic_projects.mini_market.model.entity.User;
@@ -29,7 +29,7 @@ public class ActivityLogService {
   @Autowired
   ActivityLogMapper activityLogMapper;
 
-  public ActivityLogResponseDTO saveActivityLog(ActivityLogRequestDTO request) {
+  public ActivityLogResponseDTO saveActivityLog(CreateActivityLogRequestDTO request) {
     User user = userRepository.findById(request.getUserId()).orElseThrow(
       () -> new UserNotFoundException("There is no user with id : " + request.getUserId())
     );

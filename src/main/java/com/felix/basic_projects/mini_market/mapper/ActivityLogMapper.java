@@ -7,6 +7,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class ActivityLogMapper {
 
+  /*
+    ActivityLogResponseDTO's field
+      private Long id;
+      private Long userId;
+      private LocalDateTime createdAt;
+      private String action;
+      private String resource;
+      private String detailsAfter;
+      private String detailsBefore;
+  */
   public ActivityLogResponseDTO mapEntityToResponseDTO(ActivityLog log) {
     return ActivityLogResponseDTO.builder()
       .id(log.getId())

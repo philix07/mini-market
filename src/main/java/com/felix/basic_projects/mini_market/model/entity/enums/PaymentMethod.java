@@ -1,5 +1,8 @@
 package com.felix.basic_projects.mini_market.model.entity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum PaymentMethod {
 
   CASH("Cash"),
@@ -11,10 +14,6 @@ public enum PaymentMethod {
 
   PaymentMethod(String paymentMethodName) {
     this.paymentMethodName = paymentMethodName;
-  }
-
-  public String getPaymentMethodName() {
-    return paymentMethodName;
   }
 
   public static PaymentMethod fromString(String categoryName) {

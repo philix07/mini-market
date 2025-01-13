@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 // Represents sales transactions.
-public class TransactionRequestDTO {
+public class UpdateTransactionRequestDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

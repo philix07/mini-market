@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 // Represents stock updates (e.g., new stock arrivals or adjustments).
-public class StockEntryRequestDTO {
+public class UpdateStockEntryRequestDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

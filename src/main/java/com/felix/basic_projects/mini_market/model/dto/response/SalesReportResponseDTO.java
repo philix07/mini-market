@@ -6,18 +6,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SalesReportResponseDTO {
-
   private LocalDateTime reportDate;
   private double totalRevenue;
   private int totalTransactions;
-  private List<ProductTransactionSummary> productTransactionSummaries; // Can we use groupBy function?
-
-
+  private List<ProductTransactionSummary> productTransactionSummaries;
 }

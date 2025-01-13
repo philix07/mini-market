@@ -1,6 +1,5 @@
 package com.felix.basic_projects.mini_market.model.dto.request;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,7 +15,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class CustomerRequestDTO {
+public class UpdateCustomerRequestDTO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
