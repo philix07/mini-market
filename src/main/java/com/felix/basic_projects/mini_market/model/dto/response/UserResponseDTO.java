@@ -1,5 +1,6 @@
 package com.felix.basic_projects.mini_market.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.felix.basic_projects.mini_market.model.entity.enums.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,5 +24,7 @@ public class UserResponseDTO {
   private String email;
   private String username;
   private UserRole role;
+
+  @JsonProperty("isActive")
   private boolean isActive;
 }

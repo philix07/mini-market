@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @Getter
 public class UpdateStockEntryRequestDTO {
 
+  @NotNull(message = "userId for the one who triggers the updates must provided")
+  private Long userId;
+
   @NotNull(message = "Product id must be filled")
   private Long productId; // Foreign Key to Product
 

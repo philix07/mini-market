@@ -21,38 +21,30 @@ public class ActivityLogController {
   ActivityLogService logService;
 
   @GetMapping("logs")
-  public ResponseEntity<List<ActivityLog>> retrieveAllActivityLog() {
-    List<ActivityLog> logs = logService.retrieveAllActivityLog();
-
-    return ResponseEntity.ok(logs);
+  public ResponseEntity<List<ActivityLogResponseDTO>> retrieveAllActivityLog() {
+    return ResponseEntity.ok(logService.retrieveAllActivityLog());
   }
 
   @GetMapping("logs/users/{uid}")
-  public ResponseEntity<List<ActivityLog>> findAllActivityLogByUserId(@PathVariable Long uid) {
-    List<ActivityLog> logs = logService.retrieveAllActivityLogByUserId(uid);
-
-    return ResponseEntity.ok(logs);
+  public ResponseEntity<List<ActivityLogResponseDTO>> findAllActivityLogByUserId(@PathVariable Long uid) {
+    return ResponseEntity.ok(logService.retrieveAllActivityLogByUserId(uid));
   }
 
   @GetMapping("logs/resources/{resource}")
-  public ResponseEntity<List<ActivityLog>> findAllActivityLogByResource(@PathVariable String resource) {
-    List<ActivityLog> logs = logService.retrieveAllActivityLogByResource(resource);
-
-    return ResponseEntity.ok(logs);
+  public ResponseEntity<List<ActivityLogResponseDTO>> findAllActivityLogByResource(@PathVariable String resource) {
+    return ResponseEntity.ok(logService.retrieveAllActivityLogByResource(resource));
   }
 
   @GetMapping("logs/dates")
-  public ResponseEntity<List<ActivityLog>> findAllActivityLogByResource(
+  public ResponseEntity<List<ActivityLogResponseDTO>> findAllActivityLogByResource(
     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
   ) {
-    List<ActivityLog> logs = logService.retrieveAllActivityLogByDateRange(startDate, endDate);
-
-    return ResponseEntity.ok(logs);
+    return ResponseEntity.ok(logService.retrieveAllActivityLogByDateRange(startDate, endDate));
   }
 
-  @PostMapping("logs")
-  public ResponseEntity<ActivityLogResponseDTO> saveActivityLog(@RequestBody @Valid CreateActivityLogRequestDTO request) {
-    return ResponseEntity.ok(logService.saveActivityLog(request));
-  }
+//  @PostMapping("logs")
+//  public ResponseEntity<ActivityLogResponseDTO> saveActivityLog(@RequestBody @Valid CreateActivityLogRequestDTO request) {
+//    return ResponseEntity.ok(logService.saveActivityLog(request));
+//  }
 }

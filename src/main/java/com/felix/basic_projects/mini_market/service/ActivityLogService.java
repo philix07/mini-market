@@ -47,27 +47,27 @@ public class ActivityLogService {
     return activityLogMapper.mapEntityToResponseDTO(log);
   }
 
-  public List<ActivityLog> retrieveAllActivityLog() {
+  public List<ActivityLogResponseDTO> retrieveAllActivityLog() {
     List<ActivityLog> logs = logRepository.findAll();
 
     if (logs.isEmpty()) {
       throw new ActivityLogNotFoundException("There is no activity log in this application");
     }
 
-    return logs;
+    return logs.stream().map(activityLogMapper::mapEntityToResponseDTO).toList();
   }
 
-  public List<ActivityLog> retrieveAllActivityLogByUserId(Long id) {
+  public List<ActivityLogResponseDTO> retrieveAllActivityLogByUserId(Long id) {
     List<ActivityLog> logs = logRepository.findAllByUserId(id);
 
     if (logs.isEmpty()) {
       throw new ActivityLogNotFoundException("There is no activity log for user with id : " + id);
     }
 
-    return logs;
+    return logs.stream().map(activityLogMapper::mapEntityToResponseDTO).toList();
   }
 
-  public List<ActivityLog> retrieveAllActivityLogByDateRange(LocalDate startDate, LocalDate endDate) {
+  public List<ActivityLogResponseDTO> retrieveAllActivityLogByDateRange(LocalDate startDate, LocalDate endDate) {
     LocalDateTime formattedStartDate = startDate.atStartOfDay();
     LocalDateTime formattedEndDate = endDate.atTime(23, 59, 59, 999_999_999);
 
@@ -79,12 +79,11 @@ public class ActivityLogService {
       );
     }
 
-    return logs;
+    return logs.stream().map(activityLogMapper::mapEntityToResponseDTO).toList();
   }
 
-  public List<ActivityLog> retrieveAllActivityLogByResource(String resource) {
-    List<ActivityLog> logs = logRepository.findAllByResource(ActivityLogResource.valueOf(resource));
-
+  public List<ActivityLogResponseDTO> retrieveAllActivityLogByResource(String resource) {
+    List<ActivityLog> logs = logRepository.findAllByResource(ActivityLogResource.fromString(resource));
 
     if (logs.isEmpty()) {
       throw new ActivityLogNotFoundException(
@@ -92,13 +91,14 @@ public class ActivityLogService {
       );
     }
 
-    return logs;
+    return logs.stream().map(activityLogMapper::mapEntityToResponseDTO).toList();
   }
 
-  public ActivityLog findActivityLogById(Long id) {
-    return logRepository.findById(id).orElseThrow(
-      () -> new ActivityLogNotFoundException("There is no activity log with id : " + id)
-    );
+  public ActivityLogResponseDTO findActivityLogById(Long id) {
+    return logRepository.findById(id).map(activityLogMapper::mapEntityToResponseDTO)
+      .orElseThrow(
+        () -> new ActivityLogNotFoundException("There is no activity log with id : " + id)
+      );
   }
 
 }

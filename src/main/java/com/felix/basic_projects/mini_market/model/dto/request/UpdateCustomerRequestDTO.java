@@ -12,6 +12,9 @@ import lombok.*;
 @Getter
 public class UpdateCustomerRequestDTO {
 
+  @NotNull(message = "userId for the one who triggers the updates must provided")
+  private Long updatedById;
+
   @Email
   @NotEmpty(message = "Customer email cannot be empty or null")
   private String email;

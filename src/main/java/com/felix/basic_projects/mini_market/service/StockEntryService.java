@@ -8,9 +8,12 @@ import com.felix.basic_projects.mini_market.mapper.StockEntryMapper;
 import com.felix.basic_projects.mini_market.model.dto.request.CreateStockEntryRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.request.UpdateStockEntryRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.StockEntryResponseDTO;
+import com.felix.basic_projects.mini_market.model.entity.ActivityLog;
 import com.felix.basic_projects.mini_market.model.entity.Product;
 import com.felix.basic_projects.mini_market.model.entity.StockEntry;
 import com.felix.basic_projects.mini_market.model.entity.User;
+import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
+import com.felix.basic_projects.mini_market.repository.ActivityLogRepository;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
 import com.felix.basic_projects.mini_market.repository.StockEntryRepository;
 import com.felix.basic_projects.mini_market.repository.UserRepository;
@@ -26,12 +29,12 @@ public class StockEntryService {
 
   @Autowired
   private StockEntryRepository stockEntryRepository;
-
   @Autowired
   private ProductRepository productRepository;
-
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  ActivityLogRepository activityLogRepository;
 
   @Autowired
   private StockEntryMapper stockEntryMapper;
@@ -91,7 +94,18 @@ public class StockEntryService {
       .build();
     stockEntryRepository.save(stockEntry);
 
-    return stockEntryMapper.mapEntityToResponseDTO(stockEntry);
+    StockEntryResponseDTO stockEntryResponseDTO = stockEntryMapper.mapEntityToResponseDTO(stockEntry);
+
+    ActivityLog activityLog = ActivityLog.builder()
+      .createdAt(LocalDateTime.now())
+      .user(user)
+      .action("Creating stock entry for id : " + stockEntry.getId())
+      .resource(ActivityLogResource.STOCK_ENTRY)
+      .detailsBefore(stockEntryResponseDTO.toString())
+      .build();
+    activityLogRepository.save(activityLog);
+
+    return stockEntryResponseDTO;
   }
 
   @Transactional
@@ -100,6 +114,8 @@ public class StockEntryService {
     return stockEntryRepository.findById(id)
       .map(
         stockEntry -> {
+          String originalStockEntryJson = stockEntryMapper.mapEntityToResponseDTO(stockEntry).toString();
+
           // for updating Product's stockQuantity
           int updatedStockEntryQuantity = stockEntryRequest.getQuantity() - stockEntry.getQuantity();
 
@@ -121,9 +137,29 @@ public class StockEntryService {
           ) .orElseThrow(
             () -> new ProductNotFoundException("There is no product with id : " + stockEntryRequest.getProductId())
           );
-
           stockEntryRepository.save(stockEntry);
-          return stockEntryMapper.mapEntityToResponseDTO(stockEntry);
+
+          StockEntryResponseDTO updatedStockEntryResponseDTO = stockEntryMapper.mapEntityToResponseDTO(stockEntry);
+          String updatedStockEntryJson = updatedStockEntryResponseDTO.toString();
+
+          // Log update action into ActivityLog
+          // fetch detail of user who performed the StockEntry operation
+          User user = userRepository.findById(stockEntryRequest.getUserId())
+            .orElseThrow(
+              () -> new UserNotFoundException("There is no user with id : " + stockEntryRequest.getUserId())
+            );
+
+          ActivityLog activityLog = ActivityLog.builder()
+            .createdAt(LocalDateTime.now())
+            .user(user)
+            .action("Updating stock entry for id : " + stockEntry.getId())
+            .resource(ActivityLogResource.STOCK_ENTRY)
+            .detailsBefore(originalStockEntryJson)
+            .detailsAfter(updatedStockEntryJson)
+            .build();
+          activityLogRepository.save(activityLog);
+
+          return updatedStockEntryResponseDTO;
       })
       .orElseThrow(() -> new StockEntryNotFoundException("There is no stock entry with id : " + id));
   }

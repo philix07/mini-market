@@ -209,7 +209,7 @@ public class TransactionService {
         Product updatedProductStockQuantity = productRepository.findById(transactionItem.getProduct().getId())
           .map(
             product -> {
-              product.setStockQuantity(product.getStockQuantity() + (updatedTransactionItem.getQuantity() - transactionItem.getQuantity()));
+              product.setStockQuantity(product.getStockQuantity() + (transactionItem.getQuantity() - updatedTransactionItem.getQuantity()));
               if(product.getStockQuantity() < 0) {
                 throw new InvalidStockQuantityException(
                   "Not enough stock for product : '" + product.getName() +"', stock after transaction : " + product.getStockQuantity()

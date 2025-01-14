@@ -9,6 +9,9 @@ import lombok.*;
 @Getter
 public class UpdateProductRequestDTO {
 
+  @NotNull(message = "userId for the one who triggers the updates must provided")
+  private Long updatedById;
+
   @NotEmpty(message = "Product cannot be empty or null")
   @Size(min = 4, message = "Product name should have at least 4 character")
   private String name;
