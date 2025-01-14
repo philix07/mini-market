@@ -5,8 +5,6 @@ import com.felix.basic_projects.mini_market.exception.product.InvalidStockQuanti
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
 import com.felix.basic_projects.mini_market.exception.transaction.TransactionNotFoundException;
 import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
-import com.felix.basic_projects.mini_market.mapper.ActivityLogMapper;
-import com.felix.basic_projects.mini_market.mapper.TransactionItemMapper;
 import com.felix.basic_projects.mini_market.mapper.TransactionMapper;
 import com.felix.basic_projects.mini_market.model.dto.request.CreateTransactionRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.request.UpdateTransactionRequestDTO;
@@ -15,7 +13,6 @@ import com.felix.basic_projects.mini_market.model.entity.*;
 import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
 import com.felix.basic_projects.mini_market.repository.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -56,6 +53,16 @@ public class TransactionService {
 
     if(transactions.isEmpty()) {
       throw new TransactionNotFoundException("There is no transaction in this application");
+    }
+
+    return transactions.stream().map(transactionMapper::mapEntityToResponseDTO).toList();
+  }
+
+  public List<TransactionResponseDTO> retrieveAllTransactionByUserId(Long userId) {
+    List<Transaction> transactions = transactionRepository.findAllByUserId(userId);
+
+    if(transactions.isEmpty()) {
+      throw new TransactionNotFoundException("There is no transaction created by user with id : " + userId);
     }
 
     return transactions.stream().map(transactionMapper::mapEntityToResponseDTO).toList();

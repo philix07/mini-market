@@ -24,14 +24,19 @@ public class TransactionController {
     this.service = service;
   }
 
+  @GetMapping("transactions/{id}")
+  ResponseEntity<TransactionResponseDTO> findTransactionById(@PathVariable Long id) {
+    return ResponseEntity.ok(service.findTransactionById(id));
+  }
+
   @GetMapping("transactions")
   ResponseEntity<List<TransactionResponseDTO>> retrieveAllTransaction() {
     return ResponseEntity.ok(service.retrieveAllTransaction());
   }
 
-  @GetMapping("transactions/{id}")
-  ResponseEntity<TransactionResponseDTO> findTransactionById(@PathVariable Long id) {
-    return ResponseEntity.ok(service.findTransactionById(id));
+  @GetMapping("transactions/users/{uid}")
+  ResponseEntity<List<TransactionResponseDTO>> retrieveAllTransactionByUserId(@PathVariable Long uid) {
+    return ResponseEntity.ok(service.retrieveAllTransactionByUserId(uid));
   }
 
   @PostMapping("transactions")
