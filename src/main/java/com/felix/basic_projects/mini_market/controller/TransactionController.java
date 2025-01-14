@@ -18,8 +18,11 @@ import java.util.List;
 @RequestMapping("/v1")
 public class TransactionController {
 
-  @Autowired
-  TransactionService service;
+  private final TransactionService service;
+
+  public TransactionController(TransactionService service) {
+    this.service = service;
+  }
 
   @GetMapping("transactions")
   ResponseEntity<List<TransactionResponseDTO>> retrieveAllTransaction() {

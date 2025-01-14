@@ -18,8 +18,11 @@ import java.util.List;
 @RequestMapping("/v1")
 public class StockEntryController {
 
-  @Autowired
-  StockEntryService stockEntryService;
+  private final StockEntryService stockEntryService;
+
+  public StockEntryController(StockEntryService stockEntryService) {
+    this.stockEntryService = stockEntryService;
+  }
 
   @GetMapping("/stockEntries")
   public ResponseEntity<List<StockEntryResponseDTO>> retrieveAllStockEntry() {

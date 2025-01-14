@@ -24,17 +24,22 @@ import java.util.List;
 @Service
 public class CustomerService {
 
-  @Autowired
-  private CustomerRepository customerRepository;
-  @Autowired
-  private CustomerMapper customerMapper;
+  private final CustomerRepository customerRepository;
+  private final ActivityLogRepository logRepository;
+  private final UserRepository userRepository;
+  private final CustomerMapper customerMapper;
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private ActivityLogRepository logRepository;
-  @Autowired
-  private ActivityLogMapper logMapper;
+  public CustomerService(
+    CustomerRepository customerRepository,
+    ActivityLogRepository logRepository,
+    UserRepository userRepository,
+    CustomerMapper customerMapper
+  ) {
+    this.customerRepository = customerRepository;
+    this.logRepository = logRepository;
+    this.userRepository = userRepository;
+    this.customerMapper = customerMapper;
+  }
 
   public List<CustomerResponseDTO> retrieveAllCustomer() {
     List<Customer> customers = customerRepository.findAll();

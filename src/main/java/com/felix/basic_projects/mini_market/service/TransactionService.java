@@ -13,11 +13,9 @@ import com.felix.basic_projects.mini_market.model.dto.request.UpdateTransactionR
 import com.felix.basic_projects.mini_market.model.dto.response.TransactionResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.*;
 import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
-import com.felix.basic_projects.mini_market.model.entity.enums.PaymentMethod;
 import com.felix.basic_projects.mini_market.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,23 +27,29 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionService {
 
-  @Autowired
-  private TransactionRepository transactionRepository;
-  @Autowired
-  private ProductRepository productRepository;
-  @Autowired
-  private CustomerRepository customerRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private ActivityLogRepository logRepository;
 
-  @Autowired
-  private TransactionMapper transactionMapper;
-  @Autowired
-  private TransactionItemMapper transactionItemMapper;
-  @Autowired
-  private ActivityLogMapper logMapper;
+  private final TransactionRepository transactionRepository;
+  private final ProductRepository productRepository;
+  private final CustomerRepository customerRepository;
+  private final UserRepository userRepository;
+  private final ActivityLogRepository logRepository;
+  private final TransactionMapper transactionMapper;
+
+  public TransactionService(
+    TransactionRepository transactionRepository,
+    ProductRepository productRepository,
+    CustomerRepository customerRepository,
+    UserRepository userRepository,
+    ActivityLogRepository logRepository,
+    TransactionMapper transactionMapper
+  ) {
+    this.transactionRepository = transactionRepository;
+    this.productRepository = productRepository;
+    this.customerRepository = customerRepository;
+    this.userRepository = userRepository;
+    this.logRepository = logRepository;
+    this.transactionMapper = transactionMapper;
+  }
 
   public List<TransactionResponseDTO> retrieveAllTransaction() {
     List<Transaction> transactions = transactionRepository.findAll();
@@ -242,7 +246,7 @@ public class TransactionService {
         // the same TransactionItem object, when there is change of fields (modification/updates),
         // it affects both of them. But this only works for updating feature, not with deleting or adding.
         // That's why when I updated the "oldTransactionItem" field, the "oldTransaction.getTransactionItems()"
-        // is also affected without me to directly accessing the "List<TransactionItem>" from the "oldTransaction"
+        // is also affected without me directly accessing the "List<TransactionItem>" from the "oldTransaction"
 
         // But turns out Hibernate can handle this without creating a new list.
         // In my case, oldTransaction.getTransactionItems() is likely an instance of PersistentBag,

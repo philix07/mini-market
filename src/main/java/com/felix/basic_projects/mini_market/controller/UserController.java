@@ -18,8 +18,11 @@ import java.util.List;
 @RequestMapping("v1")
 public class UserController {
 
-  @Autowired
-  private UserService service;
+  private final UserService service;
+
+  public UserController(UserService service) {
+    this.service = service;
+  }
 
   @GetMapping("users")
   public ResponseEntity<List<UserResponseDTO>> retrieveAllUser() {

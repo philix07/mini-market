@@ -23,8 +23,11 @@ public class SalesReportService {
   // Nanoseconds range from 0 to 999,999,999. To represent the last possible moment in a second,
   // we need to set nanoseconds to 999,999,999 (just before the next second starts)...
 
-  @Autowired
-  private TransactionRepository transactionRepository;
+  private final TransactionRepository transactionRepository;
+
+  public SalesReportService(TransactionRepository transactionRepository) {
+    this.transactionRepository = transactionRepository;
+  }
 
   public SalesReport generateCustommSalesReport(LocalDate startDate, LocalDate endDate) {
     LocalDateTime formattedStartDate = startDate.atStartOfDay();

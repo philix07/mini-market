@@ -13,8 +13,11 @@ import java.time.LocalDate;
 @RequestMapping("/v1")
 public class SalesReportController {
 
-  @Autowired
-  SalesReportService salesReportService;
+  private final SalesReportService salesReportService;
+
+  public SalesReportController(SalesReportService salesReportService) {
+    this.salesReportService = salesReportService;
+  }
 
   @GetMapping("/salesReports/custom")
   public ResponseEntity<SalesReport> generateCustomSalesReport(

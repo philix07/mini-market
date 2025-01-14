@@ -27,17 +27,25 @@ import java.util.List;
 @Service
 public class StockEntryService {
 
-  @Autowired
-  private StockEntryRepository stockEntryRepository;
-  @Autowired
-  private ProductRepository productRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private ActivityLogRepository activityLogRepository;
+  private final StockEntryRepository stockEntryRepository;
+  private final ProductRepository productRepository;
+  private final UserRepository userRepository;
+  private final ActivityLogRepository activityLogRepository;
+  private final StockEntryMapper stockEntryMapper;
 
-  @Autowired
-  private StockEntryMapper stockEntryMapper;
+  public StockEntryService(
+    StockEntryRepository stockEntryRepository,
+    ProductRepository productRepository,
+    UserRepository userRepository,
+    ActivityLogRepository activityLogRepository,
+    StockEntryMapper stockEntryMapper
+  ) {
+    this.stockEntryRepository = stockEntryRepository;
+    this.productRepository = productRepository;
+    this.userRepository = userRepository;
+    this.activityLogRepository = activityLogRepository;
+    this.stockEntryMapper = stockEntryMapper;
+  }
 
   public List<StockEntryResponseDTO> retrieveAllStockEntry() {
     List<StockEntry> stockEntries = stockEntryRepository.findAll();

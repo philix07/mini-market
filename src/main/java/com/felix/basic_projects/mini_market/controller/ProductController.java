@@ -19,8 +19,11 @@ import java.util.List;
 @RequestMapping("/v1")
 public class ProductController {
 
-  @Autowired
-  private ProductService service;
+  private final ProductService service;
+
+  public ProductController(ProductService service) {
+    this.service = service;
+  }
 
   @GetMapping("products")
   public ResponseEntity<List<ProductResponseDTO>> retrieveAllProduct() {

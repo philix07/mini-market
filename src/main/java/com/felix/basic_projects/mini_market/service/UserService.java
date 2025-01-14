@@ -21,15 +21,19 @@ import java.util.List;
 @Service
 public class UserService {
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private UserMapper userMapper;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
+  private final ActivityLogRepository logRepository;
 
-  @Autowired
-  private ActivityLogRepository logRepository;
-  @Autowired
-  private ActivityLogMapper logMapper;
+  public UserService(
+    UserRepository userRepository,
+    UserMapper userMapper,
+    ActivityLogRepository logRepository
+  ) {
+    this.userRepository = userRepository;
+    this.userMapper = userMapper;
+    this.logRepository = logRepository;
+  }
 
   public List<UserResponseDTO> retrieveAllUser() {
     List<User> users = userRepository.findAll();

@@ -20,14 +20,21 @@ import java.util.List;
 @Service
 public class ActivityLogService {
 
-  @Autowired
-  private ActivityLogRepository logRepository;
+  private final ActivityLogRepository logRepository;
+  private final UserRepository userRepository;
 
-  @Autowired
-  private UserRepository userRepository;
+  private final ActivityLogMapper activityLogMapper;
 
-  @Autowired
-  ActivityLogMapper activityLogMapper;
+  // Constructor for dependency injection
+  public ActivityLogService(
+    ActivityLogRepository logRepository,
+    UserRepository userRepository,
+    ActivityLogMapper activityLogMapper
+  ) {
+    this.logRepository = logRepository;
+    this.userRepository = userRepository;
+    this.activityLogMapper = activityLogMapper;
+  }
 
   public ActivityLogResponseDTO saveActivityLog(CreateActivityLogRequestDTO request) {
     User user = userRepository.findById(request.getUserId()).orElseThrow(

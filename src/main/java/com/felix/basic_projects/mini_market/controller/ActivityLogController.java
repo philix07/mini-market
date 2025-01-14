@@ -17,8 +17,11 @@ import java.util.List;
 @RequestMapping("v1")
 public class ActivityLogController {
 
-  @Autowired
-  ActivityLogService logService;
+  private final ActivityLogService logService;
+
+  public ActivityLogController(ActivityLogService logService) {
+    this.logService = logService;
+  }
 
   @GetMapping("logs")
   public ResponseEntity<List<ActivityLogResponseDTO>> retrieveAllActivityLog() {

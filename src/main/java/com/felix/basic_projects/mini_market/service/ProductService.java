@@ -27,17 +27,22 @@ import java.util.Set;
 @Service
 public class ProductService {
 
-  @Autowired
-  private ProductRepository productRepository;
-  @Autowired
-  private ProductMapper productMapper;
+  private final ProductRepository productRepository;
+  private final UserRepository userRepository;
+  private final ActivityLogRepository logRepository;
+  private final ProductMapper productMapper;
 
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private ActivityLogRepository logRepository;
-  @Autowired
-  private ActivityLogMapper logMapper;
+  public ProductService(
+    ProductRepository productRepository,
+    UserRepository userRepository,
+    ActivityLogRepository logRepository,
+    ProductMapper productMapper
+  ) {
+    this.productRepository = productRepository;
+    this.userRepository = userRepository;
+    this.logRepository = logRepository;
+    this.productMapper = productMapper;
+  }
 
   public List<ProductResponseDTO> retrieveAllProduct() {
     List<Product> products = productRepository.findAll();
