@@ -16,7 +16,7 @@ import java.util.List;
 public class UpdateTransactionRequestDTO {
 
   @NotNull(message = "userId for the one who triggers the updates must provided")
-  private Long updatedById;
+  private Long userId;
 
   @NotNull(message = "Payment method field must be provided")
   private PaymentMethod paymentMethod;

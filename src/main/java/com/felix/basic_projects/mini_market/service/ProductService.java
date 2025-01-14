@@ -2,17 +2,25 @@ package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.product.DuplicateProductException;
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
+import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.ActivityLogMapper;
 import com.felix.basic_projects.mini_market.mapper.ProductMapper;
 import com.felix.basic_projects.mini_market.model.dto.request.CreateProductRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.request.UpdateProductRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.ProductResponseDTO;
+import com.felix.basic_projects.mini_market.model.entity.ActivityLog;
 import com.felix.basic_projects.mini_market.model.entity.Product;
+import com.felix.basic_projects.mini_market.model.entity.User;
+import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
 import com.felix.basic_projects.mini_market.model.entity.enums.ProductCategory;
+import com.felix.basic_projects.mini_market.repository.ActivityLogRepository;
 import com.felix.basic_projects.mini_market.repository.ProductRepository;
+import com.felix.basic_projects.mini_market.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -21,9 +29,15 @@ public class ProductService {
 
   @Autowired
   private ProductRepository productRepository;
-
   @Autowired
   private ProductMapper productMapper;
+
+  @Autowired
+  private UserRepository userRepository;
+  @Autowired
+  private ActivityLogRepository logRepository;
+  @Autowired
+  private ActivityLogMapper logMapper;
 
   public List<ProductResponseDTO> retrieveAllProduct() {
     List<Product> products = productRepository.findAll();
@@ -117,16 +131,34 @@ public class ProductService {
     return productRepository.findById(id)
       .map(
       newProd -> {
+        String originalProductJson = productMapper.mapEntityToResponseDTO(newProd).toString();
+
         newProd.setName(request.getName());
         newProd.setBarcode(request.getBarcode());
         newProd.setCategory(ProductCategory.fromString(request.getCategory()));
         newProd.setPrice(request.getPrice());
-        newProd.setStockQuantity(request.getStockQuantity());
-        return productRepository.save(newProd);
+        productRepository.save(newProd);
+
+        ProductResponseDTO productResponseDTO = productMapper.mapEntityToResponseDTO(newProd);
+        String updateProductJson = productResponseDTO.toString();
+
+        User user = userRepository.findById(request.getUserId())
+          .orElseThrow(
+            () -> new UserNotFoundException("There is no user with id : " + request.getUserId())
+          );
+
+        ActivityLog log = ActivityLog.builder()
+          .createdAt(LocalDateTime.now())
+          .user(user)
+          .action("Updating product data with id : " + id)
+          .resource(ActivityLogResource.PRODUCT)
+          .detailsBefore(originalProductJson)
+          .detailsAfter(updateProductJson)
+          .build();
+        logRepository.save(log);
+
+        return productResponseDTO;
       }
-      )
-      .map(
-      product -> productMapper.mapEntityToResponseDTO(product)
       )
       .orElseThrow(() -> new ProductNotFoundException("There is not product with id : " + id));
   }

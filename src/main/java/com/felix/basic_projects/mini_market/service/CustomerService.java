@@ -1,15 +1,24 @@
 package com.felix.basic_projects.mini_market.service;
 
 import com.felix.basic_projects.mini_market.exception.customer.CustomerNotFoundException;
+import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.ActivityLogMapper;
 import com.felix.basic_projects.mini_market.mapper.CustomerMapper;
 import com.felix.basic_projects.mini_market.model.dto.request.CreateCustomerRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.request.UpdateCustomerRequestDTO;
+import com.felix.basic_projects.mini_market.model.dto.response.ActivityLogResponseDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.CustomerResponseDTO;
+import com.felix.basic_projects.mini_market.model.entity.ActivityLog;
 import com.felix.basic_projects.mini_market.model.entity.Customer;
+import com.felix.basic_projects.mini_market.model.entity.User;
+import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
+import com.felix.basic_projects.mini_market.repository.ActivityLogRepository;
 import com.felix.basic_projects.mini_market.repository.CustomerRepository;
+import com.felix.basic_projects.mini_market.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,9 +26,15 @@ public class CustomerService {
 
   @Autowired
   private CustomerRepository customerRepository;
-
   @Autowired
   private CustomerMapper customerMapper;
+
+  @Autowired
+  private UserRepository userRepository;
+  @Autowired
+  private ActivityLogRepository logRepository;
+  @Autowired
+  private ActivityLogMapper logMapper;
 
   public List<CustomerResponseDTO> retrieveAllCustomer() {
     List<Customer> customers = customerRepository.findAll();
@@ -64,11 +79,34 @@ public class CustomerService {
   public CustomerResponseDTO updateCustomerById(Long id, UpdateCustomerRequestDTO customer) {
     return customerRepository.findById(id)
       .map(newCustomer -> {
+
+        String originalCustomerJson = customerMapper.mapEntityToResponseDTO(newCustomer).toString();
+
         newCustomer.setName(customer.getName());
         newCustomer.setEmail(customer.getEmail());
         newCustomer.setContactNumber(customer.getContactNumber());
         customerRepository.save(newCustomer); // Save the new data
-        return customerMapper.mapEntityToResponseDTO(newCustomer);
+
+        CustomerResponseDTO customerResponseDTO = customerMapper.mapEntityToResponseDTO(newCustomer);
+        String updatedCustomerJson = customerResponseDTO.toString();
+
+        // save the action into activity log
+        User user = userRepository.findById(customer.getUserId())
+          .orElseThrow(
+            () -> new UserNotFoundException("There is no user with id : " + customer.getUserId())
+          );
+
+        ActivityLog log = ActivityLog.builder()
+          .createdAt(LocalDateTime.now())
+          .user(user)
+          .action("Updating customer data with id : " + id)
+          .resource(ActivityLogResource.CUSTOMER)
+          .detailsBefore(originalCustomerJson)
+          .detailsAfter(updatedCustomerJson)
+          .build();
+        logRepository.save(log);
+
+        return customerResponseDTO;
       })
       .orElseThrow(() -> new CustomerNotFoundException("There is no customer with id : " + id));
   }

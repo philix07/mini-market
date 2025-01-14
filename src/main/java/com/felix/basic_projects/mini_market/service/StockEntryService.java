@@ -34,7 +34,7 @@ public class StockEntryService {
   @Autowired
   private UserRepository userRepository;
   @Autowired
-  ActivityLogRepository activityLogRepository;
+  private ActivityLogRepository activityLogRepository;
 
   @Autowired
   private StockEntryMapper stockEntryMapper;
@@ -152,7 +152,7 @@ public class StockEntryService {
           ActivityLog activityLog = ActivityLog.builder()
             .createdAt(LocalDateTime.now())
             .user(user)
-            .action("Updating stock entry for id : " + stockEntry.getId())
+            .action("Updating stock entry for id : " + id)
             .resource(ActivityLogResource.STOCK_ENTRY)
             .detailsBefore(originalStockEntryJson)
             .detailsAfter(updatedStockEntryJson)

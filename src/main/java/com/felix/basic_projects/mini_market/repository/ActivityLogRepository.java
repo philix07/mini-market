@@ -5,10 +5,12 @@ import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResour
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
   List<ActivityLog> findAllByUserId(Long id);
 

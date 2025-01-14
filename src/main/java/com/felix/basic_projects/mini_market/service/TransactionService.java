@@ -5,19 +5,19 @@ import com.felix.basic_projects.mini_market.exception.product.InvalidStockQuanti
 import com.felix.basic_projects.mini_market.exception.product.ProductNotFoundException;
 import com.felix.basic_projects.mini_market.exception.transaction.TransactionNotFoundException;
 import com.felix.basic_projects.mini_market.exception.user.UserNotFoundException;
+import com.felix.basic_projects.mini_market.mapper.ActivityLogMapper;
 import com.felix.basic_projects.mini_market.mapper.TransactionItemMapper;
 import com.felix.basic_projects.mini_market.mapper.TransactionMapper;
 import com.felix.basic_projects.mini_market.model.dto.request.CreateTransactionRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.request.UpdateTransactionRequestDTO;
 import com.felix.basic_projects.mini_market.model.dto.response.TransactionResponseDTO;
 import com.felix.basic_projects.mini_market.model.entity.*;
+import com.felix.basic_projects.mini_market.model.entity.enums.ActivityLogResource;
 import com.felix.basic_projects.mini_market.model.entity.enums.PaymentMethod;
-import com.felix.basic_projects.mini_market.repository.CustomerRepository;
-import com.felix.basic_projects.mini_market.repository.ProductRepository;
-import com.felix.basic_projects.mini_market.repository.TransactionRepository;
-import com.felix.basic_projects.mini_market.repository.UserRepository;
+import com.felix.basic_projects.mini_market.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,21 +31,21 @@ public class TransactionService {
 
   @Autowired
   private TransactionRepository transactionRepository;
-
   @Autowired
   private ProductRepository productRepository;
-
   @Autowired
   private CustomerRepository customerRepository;
-
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private ActivityLogRepository logRepository;
 
   @Autowired
   private TransactionMapper transactionMapper;
-
   @Autowired
   private TransactionItemMapper transactionItemMapper;
+  @Autowired
+  private ActivityLogMapper logMapper;
 
   public List<TransactionResponseDTO> retrieveAllTransaction() {
     List<Transaction> transactions = transactionRepository.findAll();
@@ -136,9 +136,20 @@ public class TransactionService {
       transaction.setCustomer(customer);
       transaction.setPaymentMethod(transactionRequest.getPaymentMethod());
       transaction.setTransactionItems(transactionItems);
-
     transactionRepository.save(transaction);
-    return transactionMapper.mapEntityToResponseDTO(transaction);
+
+    TransactionResponseDTO transactionResponseDTO = transactionMapper.mapEntityToResponseDTO(transaction);
+
+    ActivityLog log = ActivityLog.builder()
+      .createdAt(LocalDateTime.now())
+      .user(user)
+      .action("Creating transaction with id : " + transaction.getId())
+      .resource(ActivityLogResource.TRANSACTION)
+      .detailsBefore(transactionResponseDTO.toString())
+      .build();
+    logRepository.save(log);
+
+    return transactionResponseDTO;
   }
 
 
@@ -167,6 +178,10 @@ public class TransactionService {
   public TransactionResponseDTO updateTransactionById(Long id, UpdateTransactionRequestDTO transaction) {
     Transaction oldTransaction = transactionRepository.findById(id)
       .orElseThrow(() -> new TransactionNotFoundException("No transaction with id : " + id));
+
+    String originalTransactionJson = transactionMapper
+      .mapEntityToResponseDTO(oldTransaction)
+      .getTransactionItems().toString();
 
     oldTransaction.setPaymentMethod(transaction.getPaymentMethod());
 
@@ -276,7 +291,24 @@ public class TransactionService {
     oldTransaction.setTransactionItems(updatedTransactionItems);
     transactionRepository.save(oldTransaction);
 
-    return transactionMapper.mapEntityToResponseDTO(oldTransaction);
+    TransactionResponseDTO transactionResponseDTO = transactionMapper.mapEntityToResponseDTO(oldTransaction);
+    String updatedTransactionJson = transactionResponseDTO.getTransactionItems().toString();
+
+    // fetch user details
+    User actionPerformer = userRepository.findById(transaction.getUserId())
+      .orElseThrow(() -> new UserNotFoundException("There is no user with id : " + transaction.getUserId()));
+
+    ActivityLog log = ActivityLog.builder()
+      .createdAt(LocalDateTime.now())
+      .user(actionPerformer)
+      .action("Updating transaction data with id : " + id)
+      .resource(ActivityLogResource.TRANSACTION)
+      .detailsBefore(originalTransactionJson)
+      .detailsAfter(updatedTransactionJson)
+      .build();
+    logRepository.save(log);
+
+    return transactionResponseDTO;
   }
 
 }

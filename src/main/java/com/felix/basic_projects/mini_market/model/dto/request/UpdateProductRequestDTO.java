@@ -10,7 +10,7 @@ import lombok.*;
 public class UpdateProductRequestDTO {
 
   @NotNull(message = "userId for the one who triggers the updates must provided")
-  private Long updatedById;
+  private Long userId;
 
   @NotEmpty(message = "Product cannot be empty or null")
   @Size(min = 4, message = "Product name should have at least 4 character")
@@ -25,9 +25,5 @@ public class UpdateProductRequestDTO {
   @Positive(message = "Product price should be greater than 0")
   @NotNull(message = "Product price cannot be empty or null")
   private double price;
-
-  @PositiveOrZero(message = "Stock quantity should be greater or equals to 0")
-  @NotNull(message = "Stock quantity cannot be empty or null")
-  private int stockQuantity;
 
 }

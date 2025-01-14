@@ -15,7 +15,7 @@ import lombok.Getter;
 public class UpdateUserRequestDTO {
 
   @NotNull(message = "userId for the one who triggers the updates must provided")
-  private Long updatedById;
+  private Long userId;
 
   @Email
   @NotEmpty(message = "User email cannot be empty or null")
