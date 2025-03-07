@@ -46,5 +46,8 @@ Prompt this in **MySQL Shell**:
        'then we can run mysql commands'
 ```
 
-## 👨‍💻 Author 
-**Developed by Felix Liando**
+## 👨‍💻 Author
+
+Developed by **Felix Liando**  
+📧 Email: felix.liando07@gmail.com  
+🔗 [GitHub](https://github.com/philix07) | [LinkedIn](https://www.linkedin.com/in/felix-liando-324306250/)  
