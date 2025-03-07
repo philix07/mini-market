@@ -1,20 +1,31 @@
-# 🛒 Mini-Market Java Application
+# 🛒 Mini-Market API
 
-This is a **Java-based mini-market management system**. The application uses **MySQL** as the database and can be initialized using **Docker**.
-
-## 🚀 Getting Started
-
-### **1️⃣ Prerequisites**
-Before running the project, ensure you have:
-- **Java 17+**
-- **Docker**
-- **MySQL Shell (`mysqlsh`)**
-- **Maven** or **Gradle** (depending on the build tool used)
+🚀 **Mini-Market API** is a robust backend system designed to manage a mini-market’s operations, including **transactions, sales reports, user management, and stock tracking**. Built using **Spring** and **MySQL**.
 
 ---
 
-## 🐳 **Initializing Docker Container**
-To start the MySQL database using **Docker**, run the following command:
+## ✨ Features
+
+✅ **Transaction Management** – Save transactions with detailed records.  
+✅ **Sales Reports** – Generate insightful sales reports for business analysis.  
+✅ **User & Customer Management** – Secure authentication and role-based access.  
+✅ **Activity Log** – Track system activities for better transparency.  
+✅ **Stock Entry & Product Integration** – Manage inventory in sync with product data.  
+
+---
+
+## 🖥️ Tech Stack
+
+🔹 **Backend**           : Java (Spring Boot)  
+🔹 **Database**          : MySQL  
+🔹 **Containerization**  : Docker  
+🔹 **Build Tools**       : Maven
+
+---
+
+## 🐳 **Setting Up the Database with Docker**
+
+To run the MySQL database inside a **Docker container**, execute the following command:
 
 ```sh
 docker run --detach \
@@ -25,7 +36,6 @@ docker run --detach \
   --name mini-market \                         # Docker container name
   --publish 3306:3306 \                        # Running port
   mysql:8-oracle                               # MySQL image type/version
-```
 
 ## 🐳 **Connecting Into The Docker Container**
 Prompt this in **MySQL Shell**:
@@ -35,3 +45,6 @@ Prompt this in **MySQL Shell**:
        use mini-market-database
        'then we can run mysql commands'
 ```
+
+## 👨‍💻 Author 
+**Developed by Felix Liando**
